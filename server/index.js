@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 
 const app = express();
 
@@ -23,6 +24,12 @@ app.use('/api/ussd', require('./routes/ussd'));
 app.use('/api/notifications', require('./routes/notifications'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'Parka API running', timestamp: new Date() }));
+
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+}
 
 const MONGO_OPTS = {
   serverSelectionTimeoutMS: 10000,
